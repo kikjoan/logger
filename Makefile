@@ -19,7 +19,7 @@ APP_UTILS = src/app/utils.h
 APP_OBJS = $(APP_SRCS:.cpp=.o)
 APP_TESTS =
 
-make: app
+all: app
 
 lib : $(LIB_NAME)
 

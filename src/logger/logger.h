@@ -12,7 +12,7 @@ namespace logger {
         NO_FIND = 0,
         LOG_LEVEL_INFO,
         LOG_LEVEL_WARN,
-        LOG_LEVEL_ERROR
+        LOG_LEVEL_ERR
     };
 
     class Logger {
@@ -27,22 +27,14 @@ namespace logger {
 
         void WriteLog(const std::string &message);
 
-        static std::mutex &GetMutex(const std::string &file_name);
-
         [[nodiscard]] LogLevel GetLevel() const {
             return level;
         }
-
-        std::lock_guard<std::mutex> LockMutex();
 
     private:
         LogLevel level;
         std::ofstream log_file;
         std::string file_name;
-
-
-        static std::unordered_map<std::string, std::shared_ptr<std::mutex> > file_mutexes;
-        static std::mutex map_mutex;
     };
 };
 

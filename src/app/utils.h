@@ -8,7 +8,7 @@ namespace logger {
     inline struct str_levels {
         std::map<std::string, LogLevel> levels = {
             {
-                {"ERROR", LOG_LEVEL_ERROR}, {"error", LOG_LEVEL_ERROR}, {"WARN", LOG_LEVEL_WARN},
+                {"ERR", LOG_LEVEL_ERR}, {"err", LOG_LEVEL_ERR}, {"WARN", LOG_LEVEL_WARN},
                 {"warn", LOG_LEVEL_WARN},
                 {"INFO", LOG_LEVEL_INFO}, {"info", LOG_LEVEL_INFO}
             }
@@ -19,7 +19,7 @@ namespace logger {
     public:
         static LogLevel string_to_log_level(const std::string &level) {
             auto i = str_levels.levels.find(level);
-            if (i == str_levels.levels.end())return LogLevel(0);
+            if (i == str_levels.levels.end()) return LogLevel(1);
             else
                 return i->second;
         }
@@ -28,16 +28,18 @@ namespace logger {
             switch (level) {
                 case LOG_LEVEL_INFO: return "LOG_LEVEL_INFO";
                 case LOG_LEVEL_WARN: return "LOG_LEVEL_WARN";
-                case LOG_LEVEL_ERROR: return "LOG_LEVEL_ERROR";
+                case LOG_LEVEL_ERR: return "LOG_LEVEL_ERROR";
                 default: return "NO_FIND";
             }
         }
 
         static LogLevel find_log_level_from_message(const std::string &message) {
             if (message.length() < 4) return NO_FIND;
-            std::string last_five = message.substr(message.length() - 4, message.length() - 1);
+            std::string last_four = message.substr(message.length() - 4, message.length());
+            std::string last_three = message.substr(message.length() - 3, message.length());
             for (auto &level: str_levels.levels) {
-                if (level.first.find(last_five)) return level.second;
+                if (level.first.find(last_four) != std::string::npos) return level.second;
+                if (level.first.find(last_three) != std::string::npos) return level.second;
             }
             return NO_FIND;
         }
