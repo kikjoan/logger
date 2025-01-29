@@ -1,23 +1,30 @@
 CXX = gcc
-CXXFLAGS = -std=c++17 -Wall -Wextra -Werror -g -fPIC
-LIBFLAGS = -lstdc++
-TESTFLAGS = -lgtest -lgmock
+CXX_FLAGS = -std=c++17 -Wall -Wextra -Werror -g
+CXX_LIB_FLAGS = -lstdc++
+TEST_FLAGS = -lgtest -lgmock
+
 LIB_NAME = lib/liblogger.so
-SRCS = src/logger.cpp
-OBJS = $(SRCS:.cpp=.o)
+LIB_SRCS = src/logger/logger.cpp
+LIB_OBJS = $(LIB_SRCS:.cpp=.o)
+LIB_TESTS = src/test/logger_test.cpp
+
+APP_NAME = src/app/logger_app
+APP_SRCS = src/app/logger_app.cpp src/app/main.cpp
+APP_OBJS = $(APP_SRCS:.cpp=.o)
+APP_TESTS =
 
 
-all: $(LIB_NAME)
+all: $(LIB_NAME) $(APP_NAME)
 
-$(LIB_NAME) : $(OBJS)
-	$(CXX) -shared -o $@ $(OBJS) $(LIBFLAGS)
+$(APP_NAME) : $(APP_OBJS)
+	$(CXX) $(CXX_FLAGS) -o $@ $(APP_OBJS) $(CXX_LIB_FLAGS)
 
-%.o: %.cpp
-	$(CC) $(CFLAGS) -c $< -o $@
+$(LIB_NAME) : $(LIB_OBJS)
+	$(CXX) $(CXX_FLAGS) -fPIC -shared -o $@ $(LIB_OBJS) $(CXX_LIB_FLAGS)
 
-test:
-	$(CC) $(CFLAGS) src/test/logger_test.cpp $(SRCS) $(LIBFLAGS) $(TESTFLAGS)
+$(LIB_TESTS):
+	$(CXX) $(CXX_FLAGS) $(LIB_TESTS) $(LIB_SRCS) $(CXX_LIB_FLAGS) $(TEST_FLAGS)
 
 clean:
-	rm -f $(OBJS) $(LIB_NAME)
-
+	rm -f $(LIB_OBJS) $(LIB_NAME)
+	rm -f $(APP_OBJS) $(APP_NAME)
