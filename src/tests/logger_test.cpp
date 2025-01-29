@@ -1,4 +1,5 @@
-#include "../logger.h"
+
+#include "../logger/logger.h"
 #include <gtest/gtest.h>
 #include <fstream>
 #include <string>
@@ -17,6 +18,7 @@ std::string ReadFileContent(const std::string &filename) {
 class LoggerTest : public ::testing::Test {
 protected:
     std::string test_log_file = "test_log";
+    std::string test_log_file_path = "logs/" + test_log_file + ".log";
     Logger *logger;
 
     void SetUp() override {
@@ -32,12 +34,13 @@ protected:
 };
 
 TEST_F(LoggerTest, LogFileCreation) {
-    EXPECT_TRUE(fs::exists(test_log_file + ".log"));
+    logger->WriteLog(test_log_file);
+    EXPECT_TRUE(fs::exists(test_log_file_path));
 }
 
 TEST_F(LoggerTest, WriteInfoLog) {
     logger->WriteLog("Test message", LOG_LEVEL_INFO);
-    std::string content = ReadFileContent(test_log_file + ".log");
+    std::string content = ReadFileContent(test_log_file_path);
     EXPECT_NE(content.find("Test message"), std::string::npos);
     EXPECT_NE(content.find("LOG_LEVEL_INFO"), std::string::npos);
 }
@@ -47,14 +50,14 @@ TEST_F(LoggerTest, LogLevelFilter) {
     logger->WriteLog("Ignored message", LOG_LEVEL_INFO);
     logger->WriteLog("Important message", LOG_LEVEL_WARN);
 
-    std::string content = ReadFileContent(test_log_file + ".log");
+    std::string content = ReadFileContent(test_log_file_path);
     EXPECT_EQ(content.find("Ignored message"), std::string::npos);
     EXPECT_NE(content.find("Important message"), std::string::npos);
 }
 
 TEST_F(LoggerTest, WriteDefaultLevelLog) {
     logger->WriteLog("Default level message");
-    std::string content = ReadFileContent(test_log_file + ".log");
+    std::string content = ReadFileContent(test_log_file_path);
     EXPECT_NE(content.find("Default level message"), std::string::npos);
     EXPECT_NE(content.find("LOG_LEVEL_INFO"), std::string::npos);
 
