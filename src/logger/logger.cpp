@@ -3,7 +3,6 @@
 #include <ios>
 #include <iostream>
 using namespace logger;
-
 // The file was created in the logs directory in the root of the project.
 Logger::Logger(const std::string &file_name, LogLevel level) : level(level), file_name(file_name) {
     if (!file_name.empty()) {
@@ -18,12 +17,13 @@ Logger::~Logger() {
 }
 
 LogLevel Logger::SetDefaultLogLevel(LogLevel level) {
-
+    std::lock_guard<std::mutex> lock(logger_mutex);
     this->level = level;
     return this->level;
 }
 
 void Logger::WriteLog(const std::string &message, LogLevel level) {
+    std::lock_guard<std::mutex> lock(logger_mutex);
     if (level >= this->level) {
         if (log_file.is_open()) {
             time_t time = ::time(nullptr);

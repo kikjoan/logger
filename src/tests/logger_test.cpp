@@ -61,7 +61,7 @@ TEST_F(LoggerTest, WriteDefaultLevelLog) {
     EXPECT_NE(content.find("Default level message"), std::string::npos);
     EXPECT_NE(content.find("LOG_LEVEL_INFO"), std::string::npos);
 
-    logger->SetDefaultLogLevel(LOG_LEVEL_ERROR);
+    logger->SetDefaultLogLevel(LOG_LEVEL_ERR);
     logger->WriteLog("INFO MESSAGE", LOG_LEVEL_INFO);
 
     EXPECT_EQ(content.find("INFO MESSAGE"), std::string::npos);

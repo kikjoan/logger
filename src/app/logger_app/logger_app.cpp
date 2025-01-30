@@ -18,13 +18,10 @@ LoggerApp::LoggerApp(const std::string &file_name) : logger(file_name, LOG_LEVEL
 }
 
 LoggerApp::~LoggerApp() {
-    running = false;
     if (workerThread.joinable()) {
-        taskQueue.push(LogTask{"", NO_FIND});
         workerThread.join();
     }
 }
-
 
 void LoggerApp::SetDefaultLogLevel(LogLevel level) {
     logger.SetDefaultLogLevel(level);
@@ -40,9 +37,9 @@ void LoggerApp::run() {
 
     while (true) {
         std::cout << "Enter message: ";
-        std::getline(std::cin, message);
 
-        if (message == "exit" || message == "q") {
+        if (!std::getline(std::cin, message) || message == "exit" || message == "q") {
+            taskQueue.push(LogTask{"", NO_FIND});
             break;
         }
 
@@ -70,6 +67,8 @@ void LoggerApp::run() {
                 case LOG_LEVEL_ERR:
                     message = message.substr(0, message.length() - 3);
                     break;
+                case NO_FIND:
+                    break;
             }
             taskQueue.push(LogTask{message, level_from_message});
         } else taskQueue.push(LogTask{message, logger.GetLevel()});
@@ -79,7 +78,10 @@ void LoggerApp::run() {
 void LoggerApp::worker() {
     while (running) {
         LogTask task = taskQueue.pop();
-        if (!running && task.level == NO_FIND) break;
+        if (task.level == NO_FIND) {
+            running = false;
+            break;
+        }
         logger.WriteLog(task.message, task.level);
     }
 }
